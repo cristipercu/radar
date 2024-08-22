@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
-  "flag"
+	"strings"
 )
 
 func main() {
@@ -19,6 +21,8 @@ func main() {
   switch command {
   case "sync":
     handleSync(os.Args[2:])
+  case "--help":
+    handleHelp()
   
   default:
     fmt.Println("Invalid command", command)
@@ -26,6 +30,29 @@ func main() {
   }
 
 } 
+
+func handleHelp() {
+    fmt.Println(`
+Usage: radar <command> [subcommand] [flags]
+
+Commands:
+
+  sync    Synchronize files and directories
+
+    Subcommands:
+
+      create-config  Create a basic configuration file
+      push           Push local changes to the remote server
+
+    Flags:
+
+      -dirname  Directory name for the config. 
+                If no config name is provided, I will create .radar for you. 
+                Note that if you create your own dir, you will need to always specify it
+
+  --help  Display this help message
+`)
+}
 
 
 type SyncConfig struct {
@@ -66,8 +93,17 @@ func handleSync(args []string) {
   case "push":
     config := readBaseConfig(*configDirName, configFileName)
     command := createRsyncCommand(config, subcommand)
-    fmt.Printf("Rsync command: %v", command)
-    
+    fmt.Printf("Rsync command: %v \n", command)
+    args = strings.Fields(command)
+    cmd := exec.Command(args[0], args[1:]...)
+
+    output, err := cmd.Output()
+    if err != nil {
+      fmt.Printf("Error running the sync command %v", err)
+      os.Exit(1)
+    }
+
+    fmt.Println(output)
     
   default:
     fmt.Println("Invalid command", subcommand)
