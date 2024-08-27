@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+  "errors"
+  "io"
+  "log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -50,8 +53,7 @@ Commands:
                 If no config name is provided, I will create .radar for you. 
                 Note that if you create your own dir, you will need to always specify it
 
-  --help  Display this help message
-`)
+  --help  Display this help message`)
 }
 
 
@@ -60,7 +62,6 @@ type SyncConfig struct {
   LocalPath string `json:"local_path"`
   RemotePath string `json:"remote_path"`
   User string `json:"user"`
-  KeyPath string `json:"key_path"`
   Exclude []string `json:"exlude"`
 }
 
@@ -85,26 +86,53 @@ func handleSync(args []string) {
   switch subcommand {
   case "create-config":
     err := createBaseConfig(*configDirName, configFileName)
-    // TODO: Check if the config file exists and skip or ask for override
     if err != nil {
       fmt.Println("Error creating the config", err)
       os.Exit(1)
     }
+    fmt.Println(`Config file created. You can update the json config file with the necessary info.
+      Note that rsync is using the openssh protocol, and if you use a private key, you need to update your ssh config file with the server info. 
+      `)
   case "push":
     config := readBaseConfig(*configDirName, configFileName)
     command := createRsyncCommand(config, subcommand)
     fmt.Printf("Rsync command: %v \n", command)
-    args = strings.Fields(command)
-    cmd := exec.Command(args[0], args[1:]...)
+    args := strings.Split(command, " ")
 
-    output, err := cmd.Output()
+    cmd := exec.Command(args[0], args[1:]...)
+    
+    stdout, err := cmd.StdoutPipe()
     if err != nil {
-      fmt.Printf("Error running the sync command %v", err)
-      os.Exit(1)
+        log.Fatalf("Error creating stdout pipe: %v", err)
+    }
+    stderr, err := cmd.StderrPipe()
+    if err != nil {
+        log.Fatalf("Error creating stderr pipe: %v", err)
     }
 
-    fmt.Println(output)
-    
+    if err := cmd.Start(); err != nil {
+        log.Fatalf("Error starting command: %v", err)
+    }
+
+    out, _ := io.ReadAll(stdout)
+    errOut, _ := io.ReadAll(stderr)
+
+    err = cmd.Wait()
+    if err != nil {
+        if exitErr, ok := err.(*exec.ExitError); ok {
+            log.Fatalf("Command failed with exit code %d. Stderr: %s", exitErr.ExitCode(), errOut)
+
+        } else {
+            log.Fatalf("Command failed: %v", err)
+        }
+    }
+
+    if len(out) > 0 {
+        fmt.Println("Output:", string(out))
+    }
+
+    fmt.Println("Command completed successfully")   
+
   default:
     fmt.Println("Invalid command", subcommand)
     os.Exit(1)
@@ -128,12 +156,15 @@ func createBaseConfig(configDirName string, configFileName string) error {
   if err != nil {
     return err
   }
-  // TODO: check if file exists and return error if exists
-  err = os.WriteFile(configFilePath, jsonData, 0644)
-  if err != nil {
-    return err
-  }
- 
+  if _, err := os.Stat(configFilePath); errors.Is(err, os.ErrNotExist) {
+    err = os.WriteFile(configFilePath, jsonData, 0644)
+    if err != nil {
+      return err
+    }
+  } else {
+    fmt.Printf("Config file %v already exists", configFilePath)
+  }  
+
   return nil
 }
 
@@ -166,7 +197,7 @@ func readBaseConfig(configDirName string, configFileName string) SyncConfig {
 }
 
 func createRsyncCommand(config SyncConfig, commandType string) string {
-  command := "rsync -avz 'ssh"
+  command := "rsync -avz -e ssh"
 
   if config.ServerAddres == "" ||
      config.LocalPath == "" ||
@@ -175,12 +206,6 @@ func createRsyncCommand(config SyncConfig, commandType string) string {
     fmt.Println("server_address, user, local_path, remote_path are necessary, please update config file")
     os.Exit(1)
     
-  }
-
-  if config.KeyPath != "" {
-    command += " -i " + config.KeyPath + "'"
-  } else {
-    command += "' "
   }
 
   if len(config.Exclude) != 0 {
