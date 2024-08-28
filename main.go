@@ -2,15 +2,17 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
-  "errors"
-  "io"
-  "log"
+	"io"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/cristipercu/radar/mm"
 )
 
 func main() {
@@ -22,10 +24,13 @@ func main() {
   command := os.Args[1]
 
   switch command {
-  case "sync":
-    handleSync(os.Args[2:])
   case "--help":
     handleHelp()
+  case "sync":
+    handleSync(os.Args[2:])
+  case "mm":
+    //TODO: change the duration to be a flag
+    mm.MoveMouse(30)
   
   default:
     fmt.Println("Invalid command", command)
