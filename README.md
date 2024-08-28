@@ -1,7 +1,7 @@
 
 # Radar CLI
 
-A Go command-line tool that I use it as my personal swiss army knife 
+A Go command-line tool that I use as my personal swiss army knife 
 
 ## Building
 
@@ -10,8 +10,8 @@ A Go command-line tool that I use it as my personal swiss army knife
 2. **Get the code:** 
    * If you're using a version control system (like Git):
      ```bash
-     git clone <repository-url>
-     cd <project-directory> 
+     git clone https://github.com/cristipercu/radar
+     cd radar 
      ```
    * Otherwise, download the source code and navigate to the project's main directory
 
