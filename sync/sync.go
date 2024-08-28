@@ -47,6 +47,7 @@ func HandleSync(args []string) {
     }
     fmt.Println(`Config file created. You can update the json config file with the necessary info.
       Note that rsync is using the openssh protocol, and if you use a private key, you need to update your ssh config file with the server info. 
+      For more info check the readme from https://github.com/cristipercu/radar
       `)
   case "push":
     config := readBaseConfig(*configDirName, configFileName)
@@ -145,7 +146,6 @@ func readBaseConfig(configDirName string, configFileName string) SyncConfig {
     fmt.Println("could not decode the json file, maybe the structure is not ok", err)
     os.Exit(1)
   }
-
   // fmt.Printf("JSON: %v", config)
 
   return config

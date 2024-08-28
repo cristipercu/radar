@@ -43,6 +43,21 @@ A Go command-line tool that I use it as my personal swiss army knife
 * `radar sync push`
 * `radar mm`
 
+
+## More info
+The sync command uses the rsync tool with a ssh connection, and if your connection uses a private key, you need to create a config file in the .ssh dir.
+
+```bash
+cd ~/.ssh
+vi config
+```
+
+You can set a default setting for your ssh connection like this:
+```
+Host *
+    IdentityFile /path/to/key
+```
+
 ## Contributing
 
 Fork and submit a pull request.
