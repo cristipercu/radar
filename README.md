@@ -24,6 +24,7 @@ A Go command-line tool that I use it as my personal swiss army knife
 
 ```bash
 ./radar <command> [subcommand] [flags]
+```
 
 * `sync`: 
     * `create-config [-dirname <dir>]`: Create a config file (default: `.radar`)
