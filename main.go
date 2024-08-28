@@ -44,7 +44,6 @@ Commands:
 
       create-config  Create a basic configuration file
       push           Push local changes to the remote server
-      mm             Start the WIP... tool that does nothing, but keeps your laptop awake
 
     Flags:
 
@@ -52,6 +51,7 @@ Commands:
                 If no config name is provided, I will create .radar for you. 
                 Note that if you create your own dir, you will need to always specify it
 
+  mm      The WIP... tool that does nothing, but keeps your laptop awake
   --help  Display this help message`)
 }
 

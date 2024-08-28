@@ -29,16 +29,19 @@ A Go command-line tool that I use it as my personal swiss army knife
 * `sync`: 
     * `create-config [-dirname <dir>]`: Create a config file (default: `.radar`)
     * `push`: Push local changes
-    * `mm`: Keep laptop awake (WIP)
+
+* `mm`: Start the WIP... tool that does nothing, but keeps your laptop awake
 
 * `--help`: Show help
+
+
 
 ## Examples
 
 * `radar sync create-config`
 * `radar sync create-config -dirname my_config`
 * `radar sync push`
-* `radar sync mm`
+* `radar mm`
 
 ## Contributing
 
