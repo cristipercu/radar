@@ -56,6 +56,8 @@ func HandleSync(args []string) {
     args := strings.Split(command, " ")
 
     cmd := exec.Command(args[0], args[1:]...)
+
+    cmd.Dir = "."
     
     stdout, err := cmd.StdoutPipe()
     if err != nil {
