@@ -64,4 +64,3 @@ Fork and submit a pull request.
 
 ## License
 
-MIT License

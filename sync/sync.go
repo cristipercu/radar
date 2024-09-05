@@ -166,7 +166,7 @@ func createRsyncCommand(config SyncConfig, commandType string) string {
 
   if len(config.Exclude) != 0 {
     for _, value := range config.Exclude {
-      command += " --exclude='" + value +"'"
+      command += " --exclude '" + value +"'"
     }
   }
 
